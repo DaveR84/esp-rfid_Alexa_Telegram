@@ -41,6 +41,12 @@
 #include <TimeLib.h>                  // Library for converting epochtime to a date
 #include <WiFiUdp.h>                  // Library for manipulating UDP packets which is used by NTP Client to get Timestamps
 
+/////////////ALEXA Connet
+#include <fauxmoESP.h>                // Alexa Connect with fauxmoESP
+fauxmoESP fauxmo;                      //init fauxmoESP
+
+///////////
+
 // Variables for whole scope
 String filename = "/P/";
 unsigned long previousMillis = 0;
@@ -51,6 +57,8 @@ int relayPin;
 int relayType;
 int activateTime;
 int timeZone;
+static char const *Alexa;
+
 
 DNSServer dnsServer;
 
@@ -64,6 +72,9 @@ AsyncWebSocket ws("/ws");
 
 // Set things up
 void setup() {
+  
+
+    
   Serial.begin(115200); // To match bootloader
   Serial.println();
   Serial.println(F("[ INFO ] ESP RFID v0.3alpha"));
@@ -83,7 +94,8 @@ void setup() {
   if (!loadConfiguration()) {
     fallbacktoAPMode();
   }
-
+ fauxmo.addDevice(Alexa);
+  fauxmo.onMessage(callback);
   // Start WebSocket Plug-in and handle incoming message on "onWsEvent" function
   server.addHandler(&ws);
   ws.onEvent(onWsEvent);
@@ -647,6 +659,8 @@ bool loadConfiguration() {
   activateTime = json["rtime"];
   relayPin = json["rpin"];
   relayType = json["rtype"];
+ 
+  const char* Alexa = json["alexa"];
   pinMode(relayPin, OUTPUT);
   digitalWrite(relayPin, relayType);
 
@@ -748,3 +762,23 @@ void ShowReaderDetails() {
   }
 }
 
+
+/////////ALEXA CONNECT
+
+
+
+void callback(uint8_t device_id, const char * device_name, bool state) {
+  Serial.print("Device "); Serial.print(device_name);
+  Serial.print(" state: ");
+  if (state) {
+    Serial.println("ON");
+    activateRelay = true;  // Give user Access to Door, Safe, Box whatever you like
+        previousMillis = millis();
+        Serial.println(" have access");
+        ;
+
+  } else {
+    Serial.println("OFF");
+  }
+
+}

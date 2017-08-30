@@ -22,6 +22,8 @@ function listCONF(obj) {
   document.getElementById("intervals").value = obj.ntpinterval;
   document.getElementById("DropDownTimezone").value = obj.timezone;
   document.getElementById("hostname").value = obj.hostnm;
+  document.getElementById(„Alexa“).value = obj.alexa;
+
   if (obj.wmode === "1") {
     document.getElementById("wmodeap").checked = true;
   } else {
@@ -130,6 +132,7 @@ function saveConf() {
   datatosend.ntpinterval = document.getElementById("intervals").value;
   datatosend.timezone = document.getElementById("DropDownTimezone").value;
   datatosend.hostnm = document.getElementById("hostname").value;
+ datatosend.alexa = document.getElementById(„alexa“).value;
   datatosend.adminpwd = a;
   websock.send(JSON.stringify(datatosend));
   location.reload();
